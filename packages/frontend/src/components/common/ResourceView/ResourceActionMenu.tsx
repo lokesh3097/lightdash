@@ -18,7 +18,7 @@ import {
     IconPlus,
     IconTrash,
 } from '@tabler/icons-react';
-import { FC, Fragment, useMemo, useState } from 'react';
+import { FC, Fragment, useEffect, useMemo, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { useSpaceSummaries } from '../../../hooks/useSpaces';
 import { useApp } from '../../../providers/AppProvider';
@@ -65,6 +65,12 @@ const ResourceViewActionMenu: FC<ResourceViewActionMenuProps> = ({
     const { data: spaces = [] } = useSpaceSummaries(projectUuid, true);
     const isPinned = !!item.data.pinnedListUuid;
     const isDashboardPage = location.pathname.includes('/dashboards');
+
+    const [isPinnedLive, setIsPinnedLive] = useState(isPinned);
+
+    useEffect(() => {
+        setIsPinnedLive(isPinned);
+    }, [isPinned]);
 
     const spacesSharedWithMe = useMemo(() => {
         return spaces.filter((space) => {
@@ -200,7 +206,7 @@ const ResourceViewActionMenu: FC<ResourceViewActionMenuProps> = ({
                         component="button"
                         role="menuitem"
                         icon={
-                            isPinned ? (
+                            isPinnedLive ? (
                                 <IconPinnedOff size={18} />
                             ) : (
                                 <IconPin size={18} />
@@ -211,9 +217,12 @@ const ResourceViewActionMenu: FC<ResourceViewActionMenuProps> = ({
                                 type: ResourceViewItemAction.PIN_TO_HOMEPAGE,
                                 item,
                             });
+                            setIsPinnedLive(!isPinnedLive);
                         }}
                     >
-                        {isPinned ? 'Unpin from homepage' : 'Pin to homepage'}
+                        {isPinnedLive
+                            ? 'Unpin from homepage'
+                            : 'Pin to homepage'}
                     </Menu.Item>
                 ) : null}
 
